@@ -32,8 +32,8 @@ namespace ScriptLauncher.Services
                         psi.FileName = "cmd.exe";
 
                         psi.Arguments = item.OpenWindow
-                            ? "/k " + BuildCmdCommand(item)
-                            : "/c " + BuildCmdCommand(item);
+                            ? "/k " + BuildCommand(item)
+                            : "/c " + BuildCommand(item);
                         break;
 
                     case ScriptType.Batch:
@@ -98,22 +98,6 @@ namespace ScriptLauncher.Services
             return string.IsNullOrWhiteSpace(item.Arguments)
                 ? item.Command
                 : $"{item.Command} {item.Arguments}";
-        }
-
-        private static string BuildCmdCommand(CommandItem item)
-        {
-            if (ShouldWrapForCmd(item.Command))
-                return WrapForCmd(item.Command, item.Arguments);
-
-            return BuildCommand(item);
-        }
-
-        private static bool ShouldWrapForCmd(string command)
-        {
-            return !string.IsNullOrWhiteSpace(command) &&
-                   (command.IndexOf('\\') >= 0 ||
-                    command.IndexOf('/') >= 0 ||
-                    Path.HasExtension(command));
         }
 
         private static string WrapForCmd(string command, string arguments)
