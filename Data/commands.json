@@ -1,0 +1,13 @@
+[
+  {
+    "name": "Download",
+    "description": "Open Download Folder in explorer",
+    "type": "Cmd",
+    "command": "explorer \\Downloads",
+    "arguments": "",
+    "workingDirectory": "",
+    "runAsAdministrator": false,
+    "openWindow": false,
+    "icon": "Download"
+  }
+]
