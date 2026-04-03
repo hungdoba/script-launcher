@@ -29,6 +29,7 @@ namespace ScriptLauncher.ViewModels
         public ICommand EditCommand { get; }
         public ICommand DeleteCommand { get; }
 
+        public event Action<CommandItemViewModel, bool> OnExecuteCompleted;
         public event Action<CommandItemViewModel> OnEditRequested;
         public event Action<CommandItemViewModel> OnDeleteRequested;
 
@@ -37,9 +38,15 @@ namespace ScriptLauncher.ViewModels
             Item = item;
             _executor = executor;
 
-            ExecuteCommand = new RelayCommand(_ => _executor.Execute(Item));
+            ExecuteCommand = new RelayCommand(_ => ExecuteItem());
             EditCommand = new RelayCommand(_ => OnEditRequested?.Invoke(this));
             DeleteCommand = new RelayCommand(_ => OnDeleteRequested?.Invoke(this));
+        }
+
+        private void ExecuteItem()
+        {
+            bool started = _executor.Execute(Item);
+            OnExecuteCompleted?.Invoke(this, started);
         }
     }
 }

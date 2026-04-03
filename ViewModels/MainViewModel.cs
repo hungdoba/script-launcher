@@ -7,7 +7,7 @@ using System.Windows.Input;
 
 namespace ScriptLauncher.ViewModels
 {
-    public class MainViewModel
+    public class MainViewModel : ViewModelBase
     {
         private readonly JsonCommandLoader _loader;
         private readonly CommandExecutor _executor;
@@ -23,7 +23,38 @@ namespace ScriptLauncher.ViewModels
 
         public ICommand OpenAddWindowCommand { get; }
 
-        public string StatusMessage { get; }
+        private string _statusMessage;
+        public string StatusMessage
+        {
+            get => _statusMessage;
+            private set
+            {
+                _statusMessage = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _executionStatusMessage;
+        public string ExecutionStatusMessage
+        {
+            get => _executionStatusMessage;
+            private set
+            {
+                _executionStatusMessage = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _executionStatusIsError;
+        public bool ExecutionStatusIsError
+        {
+            get => _executionStatusIsError;
+            private set
+            {
+                _executionStatusIsError = value;
+                OnPropertyChanged();
+            }
+        }
 
         public MainViewModel()
         {
@@ -100,11 +131,20 @@ namespace ScriptLauncher.ViewModels
 
         private void AddViewModel(CommandItemViewModel vm, int index = -1)
         {
+            vm.OnExecuteCompleted += OnCommandExecuted;
             vm.OnEditRequested += v => EditRequested?.Invoke(v);
             vm.OnDeleteRequested += v => DeleteItem(v);
 
             if (index < 0) Commands.Add(vm);
             else Commands.Insert(index, vm);
+        }
+
+        private void OnCommandExecuted(CommandItemViewModel vm, bool started)
+        {
+            ExecutionStatusIsError = !started;
+            ExecutionStatusMessage = started
+                ? $"Started: {vm.Name}"
+                : $"Failed to start: {vm.Name}";
         }
     }
 }
