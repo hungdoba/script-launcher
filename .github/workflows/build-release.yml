@@ -1,0 +1,55 @@
+name: Build and Package WPF App
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Restore packages
+        run: nuget restore ScriptLauncher.sln
+
+      - name: Build solution (Release)
+        run: msbuild ScriptLauncher.sln /p:Configuration=Release /p:Platform="Any CPU"
+
+      - name: Prepare package files
+        shell: pwsh
+        run: |
+          $version = if ($env:GITHUB_REF -like 'refs/tags/*') { $env:GITHUB_REF_NAME } else { $env:GITHUB_SHA.Substring(0,7) }
+          $packageName = "ScriptLauncher-$version"
+          New-Item -ItemType Directory -Force -Path "dist/$packageName" | Out-Null
+          Copy-Item -Path "bin/Release/*" -Destination "dist/$packageName" -Recurse -Force
+          Compress-Archive -Path "dist/$packageName/*" -DestinationPath "dist/$packageName.zip" -Force
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: scriptlauncher-release
+          path: dist/*.zip
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.zip
+          generate_release_notes: true
