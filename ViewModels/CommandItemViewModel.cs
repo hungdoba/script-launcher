@@ -2,13 +2,17 @@
 using ScriptLauncher.Models;
 using ScriptLauncher.Services;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace ScriptLauncher.ViewModels
 {
-    public class CommandItemViewModel
+    public class CommandItemViewModel : ViewModelBase
     {
         private readonly CommandExecutor _executor;
+        private CancellationTokenSource _highlightResetCts;
         public CommandItem Item { get; }
 
         public string Name => Item.Name;
@@ -29,7 +33,28 @@ namespace ScriptLauncher.ViewModels
         public ICommand EditCommand { get; }
         public ICommand DeleteCommand { get; }
 
-        public event Action<CommandItemViewModel, bool> OnExecuteCompleted;
+        private bool _hasRecentExecution;
+        public bool HasRecentExecution
+        {
+            get => _hasRecentExecution;
+            private set
+            {
+                _hasRecentExecution = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _lastExecutionSuccess;
+        public bool LastExecutionSuccess
+        {
+            get => _lastExecutionSuccess;
+            private set
+            {
+                _lastExecutionSuccess = value;
+                OnPropertyChanged();
+            }
+        }
+
         public event Action<CommandItemViewModel> OnEditRequested;
         public event Action<CommandItemViewModel> OnDeleteRequested;
 
@@ -46,7 +71,34 @@ namespace ScriptLauncher.ViewModels
         private void ExecuteItem()
         {
             bool started = _executor.Execute(Item);
-            OnExecuteCompleted?.Invoke(this, started);
+
+            LastExecutionSuccess = started;
+            HasRecentExecution = true;
+            ScheduleHighlightReset();
+        }
+
+        private async void ScheduleHighlightReset()
+        {
+            _highlightResetCts?.Cancel();
+            _highlightResetCts = new CancellationTokenSource();
+            var token = _highlightResetCts.Token;
+
+            try
+            {
+                await Task.Delay(2000, token);
+
+                if (!token.IsCancellationRequested)
+                {
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        HasRecentExecution = false;
+                    });
+                }
+            }
+            catch (TaskCanceledException)
+            {
+                // Ignore cancellation because a newer command execution occurred.
+            }
         }
     }
 }

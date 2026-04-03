@@ -21,6 +21,10 @@
         <Style x:Key="AdminAwareButtonStyle"
                BasedOn="{StaticResource MaterialDesignFlatButton}"
                TargetType="Button">
+            <Setter Property="BorderThickness"
+                Value="1" />
+            <Setter Property="BorderBrush"
+                Value="Transparent" />
             <Style.Triggers>
                 <DataTrigger Binding="{Binding RunAsAdministrator}"
                              Value="True">
@@ -32,6 +36,30 @@
                     <Setter Property="Background"
                             Value="Transparent" />
                 </DataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding HasRecentExecution}"
+                                   Value="True" />
+                        <Condition Binding="{Binding LastExecutionSuccess}"
+                                   Value="True" />
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="BorderBrush"
+                            Value="#43A047" />
+                    <Setter Property="BorderThickness"
+                            Value="2" />
+                </MultiDataTrigger>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding HasRecentExecution}"
+                                   Value="True" />
+                        <Condition Binding="{Binding LastExecutionSuccess}"
+                                   Value="False" />
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="BorderBrush"
+                            Value="#E53935" />
+                    <Setter Property="BorderThickness"
+                            Value="2" />
+                </MultiDataTrigger>
             </Style.Triggers>
         </Style>
 
@@ -65,7 +93,6 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -81,41 +108,7 @@
                        FontSize="12" />
         </Border>
 
-        <Border Grid.Row="1"
-                BorderThickness="0,0,0,1"
-                Padding="8,6"
-                Visibility="{Binding ExecutionStatusMessage, Converter={StaticResource NullToVisibilityConverter}}">
-            <Border.Style>
-                <Style TargetType="Border">
-                    <Setter Property="Background" Value="#E8F5E9" />
-                    <Setter Property="BorderBrush" Value="#A5D6A7" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding ExecutionStatusIsError}" Value="True">
-                            <Setter Property="Background" Value="#FFEBEE" />
-                            <Setter Property="BorderBrush" Value="#EF9A9A" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Border.Style>
-
-            <TextBlock Text="{Binding ExecutionStatusMessage}"
-                       FontSize="11"
-                       FontWeight="SemiBold"
-                       TextWrapping="Wrap">
-                <TextBlock.Style>
-                    <Style TargetType="TextBlock">
-                        <Setter Property="Foreground" Value="#1B5E20" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding ExecutionStatusIsError}" Value="True">
-                                <Setter Property="Foreground" Value="#B71C1C" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </TextBlock.Style>
-            </TextBlock>
-        </Border>
-
-        <ScrollViewer Grid.Row="2"
+        <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto"
                       Padding="4">
         <ListBox x:Name="CommandListBox"

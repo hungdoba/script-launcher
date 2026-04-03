@@ -34,28 +34,6 @@ namespace ScriptLauncher.ViewModels
             }
         }
 
-        private string _executionStatusMessage;
-        public string ExecutionStatusMessage
-        {
-            get => _executionStatusMessage;
-            private set
-            {
-                _executionStatusMessage = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private bool _executionStatusIsError;
-        public bool ExecutionStatusIsError
-        {
-            get => _executionStatusIsError;
-            private set
-            {
-                _executionStatusIsError = value;
-                OnPropertyChanged();
-            }
-        }
-
         public MainViewModel()
         {
             string basePath = AppDomain.CurrentDomain.BaseDirectory;
@@ -131,20 +109,11 @@ namespace ScriptLauncher.ViewModels
 
         private void AddViewModel(CommandItemViewModel vm, int index = -1)
         {
-            vm.OnExecuteCompleted += OnCommandExecuted;
             vm.OnEditRequested += v => EditRequested?.Invoke(v);
             vm.OnDeleteRequested += v => DeleteItem(v);
 
             if (index < 0) Commands.Add(vm);
             else Commands.Insert(index, vm);
-        }
-
-        private void OnCommandExecuted(CommandItemViewModel vm, bool started)
-        {
-            ExecutionStatusIsError = !started;
-            ExecutionStatusMessage = started
-                ? $"Started: {vm.Name}"
-                : $"Failed to start: {vm.Name}";
         }
     }
 }
