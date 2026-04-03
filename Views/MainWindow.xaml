@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:md="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
+        xmlns:conv="clr-namespace:ScriptLauncher.Converters"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         Background="{DynamicResource MaterialDesignPaper}"
         Title="Script Launcher"
@@ -14,6 +15,8 @@
         Closing="Window_Closing">
 
     <Window.Resources>
+        <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+
         <!-- Admin = light yellow background, Normal = transparent -->
         <Style x:Key="AdminAwareButtonStyle"
                BasedOn="{StaticResource MaterialDesignFlatButton}"
@@ -59,8 +62,27 @@
         </Style>
     </Window.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  Padding="4">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Background="#FFF3E0"
+                BorderBrush="#FFB74D"
+                BorderThickness="0,0,0,1"
+                Padding="10"
+                Visibility="{Binding StatusMessage, Converter={StaticResource NullToVisibilityConverter}}">
+            <TextBlock Text="{Binding StatusMessage}"
+                       TextWrapping="Wrap"
+                       Foreground="#E65100"
+                       FontSize="12" />
+        </Border>
+
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      Padding="4">
         <ListBox x:Name="CommandListBox"
                  ItemsSource="{Binding Commands}"
                  Background="Transparent"
@@ -160,5 +182,6 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-    </ScrollViewer>
+        </ScrollViewer>
+    </Grid>
 </Window>

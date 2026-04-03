@@ -3,7 +3,6 @@ using ScriptLauncher.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Windows;
 using System.Windows.Input;
 
 namespace ScriptLauncher.ViewModels
@@ -24,6 +23,8 @@ namespace ScriptLauncher.ViewModels
 
         public ICommand OpenAddWindowCommand { get; }
 
+        public string StatusMessage { get; }
+
         public MainViewModel()
         {
             string basePath = AppDomain.CurrentDomain.BaseDirectory;
@@ -32,8 +33,19 @@ namespace ScriptLauncher.ViewModels
             _loader = new JsonCommandLoader(commandPath);
             _executor = new CommandExecutor();
 
-            foreach (var item in _loader.Load())
-                AddViewModel(new CommandItemViewModel(item, _executor));
+            if (!File.Exists(commandPath))
+                StatusMessage = $"No commands file found at {commandPath}. Starting with an empty list.";
+
+            try
+            {
+                foreach (var item in _loader.Load())
+                    AddViewModel(new CommandItemViewModel(item, _executor));
+            }
+            catch (Exception ex)
+            {
+                Commands.Clear();
+                StatusMessage = $"Failed to load commands: {ex.Message}";
+            }
 
             OpenAddWindowCommand = new RelayCommand(_ => AddRequested?.Invoke());
         }
