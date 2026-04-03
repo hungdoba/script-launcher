@@ -18,29 +18,66 @@
 
     <StackPanel Margin="20">
 
-        <!-- Icon picker row -->
-        <DockPanel Margin="0 0 0 12">
+        <!-- Icon picker -->
+        <Border Margin="0 0 0 12"
+                Padding="10"
+                BorderBrush="{DynamicResource MaterialDesignDivider}"
+                BorderThickness="1"
+                CornerRadius="4">
+            <StackPanel>
+                <DockPanel Margin="0 0 0 8">
+                    <Border Width="52"
+                            Height="52"
+                            CornerRadius="4"
+                            Background="{DynamicResource MaterialDesignChipBackground}"
+                            DockPanel.Dock="Left"
+                            Margin="0 0 12 0">
+                        <md:PackIcon Kind="{Binding PreviewIconKind}"
+                                     Width="30"
+                                     Height="30"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"
+                                     Foreground="{DynamicResource PrimaryHueMidBrush}" />
+                    </Border>
 
-            <!-- Preview the selected icon -->
-            <Border Width="52"
-                    Height="52"
-                    CornerRadius="4"
-                    Background="{DynamicResource MaterialDesignChipBackground}"
-                    DockPanel.Dock="Left"
-                    Margin="0 0 12 0">
-                <md:PackIcon Kind="{Binding PreviewIconKind}"
-                             Width="30"
-                             Height="30"
-                             HorizontalAlignment="Center"
-                             VerticalAlignment="Center"
-                             Foreground="{DynamicResource PrimaryHueMidBrush}" />
-            </Border>
+                    <StackPanel>
+                        <TextBlock Text="Selected icon"
+                                   FontSize="11"
+                                   Opacity="0.75" />
+                        <TextBlock Text="{Binding IconText}"
+                                   Style="{StaticResource MaterialDesignBody1TextBlock}"
+                                   FontWeight="SemiBold" />
+                    </StackPanel>
+                </DockPanel>
 
-            <TextBox md:HintAssist.Hint="Icon name  (e.g. FolderOpen, RocketLaunch)"
-                     Text="{Binding IconText, UpdateSourceTrigger=PropertyChanged}"
-                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                     VerticalAlignment="Center" />
-        </DockPanel>
+                <TextBox md:HintAssist.Hint="Search icon name"
+                         Text="{Binding IconSearchText, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                         Margin="0 0 0 8" />
+
+                <ListBox ItemsSource="{Binding FilteredIconNames}"
+                         SelectedItem="{Binding SelectedIconName, Mode=TwoWay}"
+                         Height="160"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         BorderThickness="1"
+                         BorderBrush="{DynamicResource MaterialDesignDivider}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <DockPanel Margin="6,4">
+                                <md:PackIcon Kind="{Binding}"
+                                             Width="20"
+                                             Height="20"
+                                             VerticalAlignment="Center"
+                                             Foreground="{DynamicResource PrimaryHueMidBrush}"
+                                             Margin="0 0 8 0" />
+                                <TextBlock Text="{Binding}"
+                                           VerticalAlignment="Center" />
+                            </DockPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </StackPanel>
+        </Border>
 
         <TextBox md:HintAssist.Hint="Name *"
                  Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"

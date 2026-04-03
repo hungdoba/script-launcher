@@ -1,8 +1,10 @@
 ﻿using MaterialDesignThemes.Wpf;
 using ScriptLauncher.Models;
 using System;
+using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
@@ -10,6 +12,8 @@ namespace ScriptLauncher.ViewModels
 {
     public class CommandEditViewModel : INotifyPropertyChanged
     {
+        private readonly List<string> _allIconNames;
+
         public string WindowTitle { get; }
 
         public List<ScriptType> Types { get; } = new List<ScriptType>
@@ -85,6 +89,34 @@ namespace ScriptLauncher.ViewModels
                 _iconText = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(PreviewIconKind));
+                OnPropertyChanged(nameof(SelectedIconName));
+            }
+        }
+
+        private string _iconSearchText;
+        public string IconSearchText
+        {
+            get => _iconSearchText;
+            set
+            {
+                _iconSearchText = value;
+                OnPropertyChanged();
+                ApplyIconFilter();
+            }
+        }
+
+        public ObservableCollection<string> FilteredIconNames { get; }
+            = new ObservableCollection<string>();
+
+        public string SelectedIconName
+        {
+            get => IconText;
+            set
+            {
+                if (string.Equals(IconText, value, StringComparison.Ordinal))
+                    return;
+
+                IconText = value;
             }
         }
 
@@ -112,6 +144,10 @@ namespace ScriptLauncher.ViewModels
 
         public CommandEditViewModel(CommandItemViewModel existing = null)
         {
+            _allIconNames = Enum.GetNames(typeof(PackIconKind))
+                .OrderBy(x => x)
+                .ToList();
+
             if (existing != null)
             {
                 WindowTitle = "Edit Command";
@@ -132,8 +168,24 @@ namespace ScriptLauncher.ViewModels
                 IconText = "Console";
             }
 
+            IconSearchText = IconText;
+            ApplyIconFilter();
+
             SaveCommand = new RelayCommand(_ => ExecuteSave());
             CancelCommand = new RelayCommand(_ => CancelRequested?.Invoke());
+        }
+
+        private void ApplyIconFilter()
+        {
+            var query = IconSearchText?.Trim();
+
+            IEnumerable<string> filtered = string.IsNullOrWhiteSpace(query)
+                ? _allIconNames
+                : _allIconNames.Where(x => x.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0);
+
+            FilteredIconNames.Clear();
+            foreach (var icon in filtered)
+                FilteredIconNames.Add(icon);
         }
 
         private void ExecuteSave()
