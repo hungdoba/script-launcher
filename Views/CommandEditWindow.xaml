@@ -132,6 +132,13 @@
                    Visibility="{Binding ValidationMessage,
                Converter={StaticResource NullToVisibilityConverter}}" />
 
+        <TextBlock Text="{Binding TestStatusMessage}"
+                   Foreground="#00695C"
+                   FontSize="11"
+                   Margin="0 0 0 8"
+                   Visibility="{Binding TestStatusMessage,
+               Converter={StaticResource NullToVisibilityConverter}}" />
+
         <!-- Buttons -->
         <StackPanel Orientation="Horizontal"
                     HorizontalAlignment="Right">

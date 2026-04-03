@@ -137,6 +137,13 @@ namespace ScriptLauncher.ViewModels
             set { _validationMessage = value; OnPropertyChanged(); }
         }
 
+        private string _testStatusMessage;
+        public string TestStatusMessage
+        {
+            get => _testStatusMessage;
+            set { _testStatusMessage = value; OnPropertyChanged(); }
+        }
+
         public event Action<CommandItem> SaveRequested;
         public event Action<CommandItem> TestRequested;
         public event Action CancelRequested;
@@ -209,12 +216,19 @@ namespace ScriptLauncher.ViewModels
             if (string.IsNullOrWhiteSpace(Command))
             {
                 ValidationMessage = "Command is required to run a test.";
+                TestStatusMessage = null;
                 return;
             }
 
             ValidationMessage = null;
+            TestStatusMessage = "Launching test command...";
             var testName = string.IsNullOrWhiteSpace(Name) ? "Test Command" : Name.Trim();
             TestRequested?.Invoke(BuildCommandItem(testName));
+        }
+
+        public void SetTestStatus(string message)
+        {
+            TestStatusMessage = message;
         }
 
         private CommandItem BuildCommandItem(string name)

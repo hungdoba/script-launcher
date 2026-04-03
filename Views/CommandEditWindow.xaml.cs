@@ -19,7 +19,13 @@ namespace ScriptLauncher.Views
 
             // ViewModel tells the View to close — View's only job
             vm.SaveRequested += item => { Result = item; DialogResult = true; };
-            vm.TestRequested += item => _executor.Execute(item);
+            vm.TestRequested += item =>
+            {
+                bool started = _executor.Execute(item);
+                vm.SetTestStatus(started
+                    ? "Test command started."
+                    : "Test command failed to start.");
+            };
             vm.CancelRequested += () => { DialogResult = false; };
 
             DataContext = vm;

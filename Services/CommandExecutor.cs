@@ -8,18 +8,18 @@ namespace ScriptLauncher.Services
 {
     public class CommandExecutor
     {
-        public void Execute(CommandItem item)
+        public bool Execute(CommandItem item)
         {
             if (item == null)
             {
                 MessageBox.Show("No command was selected.", "Script Launcher", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                return false;
             }
 
             if (string.IsNullOrWhiteSpace(item.Command) && item.Type != ScriptType.Cmd)
             {
                 MessageBox.Show("This command does not have a launch target.", "Script Launcher", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                return false;
             }
 
             try
@@ -79,7 +79,8 @@ namespace ScriptLauncher.Services
                     psi.Verb = "runas";
                 }
 
-                Process.Start(psi);
+                var process = Process.Start(psi);
+                return process != null;
             }
             catch (Exception ex)
             {
@@ -88,6 +89,7 @@ namespace ScriptLauncher.Services
                     "Script Launcher",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+                return false;
             }
         }
 
