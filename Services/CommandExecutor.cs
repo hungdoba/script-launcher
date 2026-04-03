@@ -1,4 +1,5 @@
 ﻿using ScriptLauncher.Models;
+using System;
 using System.Diagnostics;
 using System.IO;
 
@@ -24,16 +25,16 @@ namespace ScriptLauncher.Services
                 case ScriptType.Batch:
                     psi.FileName = "cmd.exe";
                     psi.Arguments = item.OpenWindow
-                        ? $"/k \"{item.Command}\" {item.Arguments}"
-                        : $"/c \"{item.Command}\" {item.Arguments}";
+                        ? $"/k {QuoteArgument(item.Command)}{FormatArguments(item.Arguments)}"
+                        : $"/c {QuoteArgument(item.Command)}{FormatArguments(item.Arguments)}";
                     break;
 
                 case ScriptType.PowerShell:
                     psi.FileName = "powershell.exe";
-                    psi.Arguments =
-                        "-NoExit -ExecutionPolicy Bypass -NoProfile -File \"" +
-                        Path.GetFullPath(item.Command) + "\" " +
-                        item.Arguments;
+                    psi.Arguments = (item.OpenWindow ? "-NoExit " : string.Empty)
+                        + "-ExecutionPolicy Bypass -NoProfile -File "
+                        + QuoteArgument(Path.GetFullPath(item.Command))
+                        + FormatArguments(item.Arguments);
                     break;
 
                 case ScriptType.Executable:
@@ -72,6 +73,21 @@ namespace ScriptLauncher.Services
             return string.IsNullOrWhiteSpace(item.Arguments)
                 ? item.Command
                 : $"{item.Command} {item.Arguments}";
+        }
+
+        private static string QuoteArgument(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return "\"\"";
+
+            return $"\"{value.Replace("\"", "\\\"")}\"";
+        }
+
+        private static string FormatArguments(string arguments)
+        {
+            return string.IsNullOrWhiteSpace(arguments)
+                ? string.Empty
+                : " " + arguments;
         }
     }
 }

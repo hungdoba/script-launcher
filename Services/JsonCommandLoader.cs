@@ -66,6 +66,10 @@ namespace ScriptLauncher.Services
 
         public void Save(List<CommandItem> items)
         {
+            var directory = Path.GetDirectoryName(_filePath);
+            if (!string.IsNullOrWhiteSpace(directory))
+                Directory.CreateDirectory(directory);
+
             var rawList = new List<Dictionary<string, object>>();
             foreach (var item in items)
             {
@@ -84,48 +88,8 @@ namespace ScriptLauncher.Services
             }
 
             var serializer = new JavaScriptSerializer();
-            var json = FormatJson(serializer.Serialize(rawList));
+            var json = serializer.Serialize(rawList);
             File.WriteAllText(_filePath, json, Encoding.UTF8);
-        }
-
-        private static string FormatJson(string json)
-        {
-            var sb = new StringBuilder();
-            int indent = 0;
-            bool inStr = false;
-
-            foreach (char c in json)
-            {
-                switch (c)
-                {
-                    case '"':
-                        inStr = !inStr;
-                        sb.Append(c);
-                        break;
-                    case '{':
-                    case '[':
-                        sb.Append(c);
-                        if (!inStr) { sb.AppendLine(); sb.Append(new string(' ', ++indent * 2)); }
-                        break;
-                    case '}':
-                    case ']':
-                        if (!inStr) { sb.AppendLine(); sb.Append(new string(' ', --indent * 2)); }
-                        sb.Append(c);
-                        break;
-                    case ',':
-                        sb.Append(c);
-                        if (!inStr) { sb.AppendLine(); sb.Append(new string(' ', indent * 2)); }
-                        break;
-                    case ':':
-                        sb.Append(c);
-                        if (!inStr) sb.Append(' ');
-                        break;
-                    default:
-                        sb.Append(c);
-                        break;
-                }
-            }
-            return sb.ToString();
         }
     }
 }

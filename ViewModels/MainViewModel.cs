@@ -29,12 +29,6 @@ namespace ScriptLauncher.ViewModels
             string basePath = AppDomain.CurrentDomain.BaseDirectory;
             string commandPath = Path.Combine(basePath, "Data", "commands.json");
 
-            if (!File.Exists(commandPath))
-            {
-                MessageBox.Show($"File not found: {commandPath}");
-                return;
-            }
-
             _loader = new JsonCommandLoader(commandPath);
             _executor = new CommandExecutor();
 

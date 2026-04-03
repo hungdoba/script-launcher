@@ -75,8 +75,6 @@ namespace ScriptLauncher.Views
         private void ExitApplication()
         {
             _isExitRequested = true;
-            _notifyIcon.Visible = false;
-            _notifyIcon.Dispose();
             System.Windows.Application.Current.Shutdown();
         }
 
@@ -85,7 +83,22 @@ namespace ScriptLauncher.Views
             if (WindowState == WindowState.Minimized) Hide();
         }
 
-        private void Window_Closing(object sender, CancelEventArgs e) { }
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            if (!_isExitRequested)
+            {
+                e.Cancel = true;
+                Hide();
+                return;
+            }
+
+            if (_notifyIcon != null)
+            {
+                _notifyIcon.Visible = false;
+                _notifyIcon.Dispose();
+                _notifyIcon = null;
+            }
+        }
 
         private void ListBox_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
