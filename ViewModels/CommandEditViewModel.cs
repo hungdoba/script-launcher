@@ -138,8 +138,10 @@ namespace ScriptLauncher.ViewModels
         }
 
         public event Action<CommandItem> SaveRequested;
+        public event Action<CommandItem> TestRequested;
         public event Action CancelRequested;
         public ICommand SaveCommand { get; }
+        public ICommand TestCommand { get; }
         public ICommand CancelCommand { get; }
 
         public CommandEditViewModel(CommandItemViewModel existing = null)
@@ -172,6 +174,7 @@ namespace ScriptLauncher.ViewModels
             ApplyIconFilter();
 
             SaveCommand = new RelayCommand(_ => ExecuteSave());
+            TestCommand = new RelayCommand(_ => ExecuteTest());
             CancelCommand = new RelayCommand(_ => CancelRequested?.Invoke());
         }
 
@@ -198,9 +201,27 @@ namespace ScriptLauncher.ViewModels
 
             ValidationMessage = null;
 
-            SaveRequested?.Invoke(new CommandItem
+            SaveRequested?.Invoke(BuildCommandItem(Name.Trim()));
+        }
+
+        private void ExecuteTest()
+        {
+            if (string.IsNullOrWhiteSpace(Command))
             {
-                Name = Name.Trim(),
+                ValidationMessage = "Command is required to run a test.";
+                return;
+            }
+
+            ValidationMessage = null;
+            var testName = string.IsNullOrWhiteSpace(Name) ? "Test Command" : Name.Trim();
+            TestRequested?.Invoke(BuildCommandItem(testName));
+        }
+
+        private CommandItem BuildCommandItem(string name)
+        {
+            return new CommandItem
+            {
+                Name = name,
                 Description = Description?.Trim() ?? "",
                 Type = SelectedType,
                 Command = Command.Trim(),
@@ -209,7 +230,7 @@ namespace ScriptLauncher.ViewModels
                 RunAsAdministrator = RunAsAdministrator,
                 OpenWindow = OpenWindow,
                 Icon = IconText?.Trim() ?? "Console"
-            });
+            };
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -141,6 +141,11 @@
                     IsCancel="True"
                     Margin="0 0 8 0" />
 
+            <Button Content="TEST"
+                Style="{StaticResource MaterialDesignFlatButton}"
+                Command="{Binding TestCommand}"
+                Margin="0 0 8 0" />
+
             <Button Content="SAVE"
                     Style="{StaticResource MaterialDesignRaisedButton}"
                     Command="{Binding SaveCommand}"
