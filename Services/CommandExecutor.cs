@@ -31,17 +31,16 @@ namespace ScriptLauncher.Services
                     case ScriptType.Cmd:
                         psi.FileName = "cmd.exe";
 
-                        // ✅ Open window or silent
                         psi.Arguments = item.OpenWindow
-                            ? "/k " + BuildCommand(item)
-                            : "/c " + BuildCommand(item);
+                            ? "/k " + BuildCmdCommand(item)
+                            : "/c " + BuildCmdCommand(item);
                         break;
 
                     case ScriptType.Batch:
                         psi.FileName = "cmd.exe";
                         psi.Arguments = item.OpenWindow
-                            ? $"/k {QuoteArgument(item.Command)}{FormatArguments(item.Arguments)}"
-                            : $"/c {QuoteArgument(item.Command)}{FormatArguments(item.Arguments)}";
+                            ? "/k " + WrapForCmd(item.Command, item.Arguments)
+                            : "/c " + WrapForCmd(item.Command, item.Arguments);
                         break;
 
                     case ScriptType.PowerShell:
@@ -97,6 +96,32 @@ namespace ScriptLauncher.Services
             return string.IsNullOrWhiteSpace(item.Arguments)
                 ? item.Command
                 : $"{item.Command} {item.Arguments}";
+        }
+
+        private static string BuildCmdCommand(CommandItem item)
+        {
+            if (ShouldWrapForCmd(item.Command))
+                return WrapForCmd(item.Command, item.Arguments);
+
+            return BuildCommand(item);
+        }
+
+        private static bool ShouldWrapForCmd(string command)
+        {
+            return !string.IsNullOrWhiteSpace(command) &&
+                   (command.IndexOf('\\') >= 0 ||
+                    command.IndexOf('/') >= 0 ||
+                    Path.HasExtension(command));
+        }
+
+        private static string WrapForCmd(string command, string arguments)
+        {
+            var quotedCommand = QuoteArgument(command);
+            var commandLine = string.IsNullOrWhiteSpace(arguments)
+                ? quotedCommand
+                : quotedCommand + " " + arguments;
+
+            return $"\"{commandLine}\"";
         }
 
         private static string QuoteArgument(string value)
