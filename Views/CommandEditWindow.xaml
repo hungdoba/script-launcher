@@ -84,6 +84,13 @@
                  Style="{StaticResource MaterialDesignOutlinedTextBox}"
                  Margin="0 0 0 10" />
 
+        <ComboBox md:HintAssist.Hint="Quick template"
+              ItemsSource="{Binding CommonTemplates}"
+              SelectedItem="{Binding SelectedTemplate, Mode=TwoWay}"
+              DisplayMemberPath="Name"
+              Style="{StaticResource MaterialDesignOutlinedComboBox}"
+              Margin="0 0 0 10" />
+
         <TextBox md:HintAssist.Hint="Description"
                  Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
                  Style="{StaticResource MaterialDesignOutlinedTextBox}"

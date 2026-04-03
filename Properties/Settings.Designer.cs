@@ -26,5 +26,16 @@ namespace ScriptLauncher.Properties
                 return defaultInstance;
             }
         }
+
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data\\common-commands.json")]
+        public string CommonCommandsFile
+        {
+            get
+            {
+                return ((string)(this["CommonCommandsFile"]));
+            }
+        }
     }
 }

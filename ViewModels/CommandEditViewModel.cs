@@ -1,11 +1,14 @@
 ﻿using MaterialDesignThemes.Wpf;
 using ScriptLauncher.Models;
+using ScriptLauncher.Properties;
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Web.Script.Serialization;
 using System.Windows.Input;
 
 namespace ScriptLauncher.ViewModels
@@ -108,6 +111,26 @@ namespace ScriptLauncher.ViewModels
         public ObservableCollection<string> FilteredIconNames { get; }
             = new ObservableCollection<string>();
 
+        public ObservableCollection<CommandItem> CommonTemplates { get; }
+            = new ObservableCollection<CommandItem>();
+
+        private CommandItem _selectedTemplate;
+        public CommandItem SelectedTemplate
+        {
+            get => _selectedTemplate;
+            set
+            {
+                if (ReferenceEquals(_selectedTemplate, value))
+                    return;
+
+                _selectedTemplate = value;
+                OnPropertyChanged();
+
+                if (value != null)
+                    ApplyTemplate(value);
+            }
+        }
+
         public string SelectedIconName
         {
             get => IconText;
@@ -157,6 +180,8 @@ namespace ScriptLauncher.ViewModels
                 .OrderBy(x => x)
                 .ToList();
 
+            LoadCommonTemplates();
+
             if (existing != null)
             {
                 WindowTitle = "Edit Command";
@@ -196,6 +221,72 @@ namespace ScriptLauncher.ViewModels
             FilteredIconNames.Clear();
             foreach (var icon in filtered)
                 FilteredIconNames.Add(icon);
+        }
+
+        private void LoadCommonTemplates()
+        {
+            CommonTemplates.Clear();
+
+            var relativePath = Settings.Default.CommonCommandsFile;
+            if (string.IsNullOrWhiteSpace(relativePath))
+                return;
+
+            var fullPath = Path.IsPathRooted(relativePath)
+                ? relativePath
+                : Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativePath);
+
+            if (!File.Exists(fullPath))
+                return;
+
+            try
+            {
+                var json = File.ReadAllText(fullPath);
+                var serializer = new JavaScriptSerializer();
+                var rawList = serializer.Deserialize<List<Dictionary<string, object>>>(json)
+                    ?? new List<Dictionary<string, object>>();
+
+                foreach (var dict in rawList)
+                {
+                    var item = new CommandItem();
+                    if (dict.TryGetValue("name", out var v)) item.Name = v?.ToString();
+                    if (dict.TryGetValue("description", out v)) item.Description = v?.ToString();
+                    if (dict.TryGetValue("command", out v)) item.Command = v?.ToString();
+                    if (dict.TryGetValue("arguments", out v)) item.Arguments = v?.ToString();
+                    if (dict.TryGetValue("workingDirectory", out v)) item.WorkingDirectory = v?.ToString();
+                    if (dict.TryGetValue("icon", out v)) item.Icon = v?.ToString();
+                    if (dict.TryGetValue("runAsAdministrator", out v)) item.RunAsAdministrator = v is bool b && b;
+                    if (dict.TryGetValue("openWindow", out v)) item.OpenWindow = v is bool b2 && b2;
+
+                    if (dict.TryGetValue("type", out v) &&
+                        Enum.TryParse(v?.ToString(), true, out ScriptType scriptType))
+                        item.Type = scriptType;
+                    else
+                        item.Type = ScriptType.Cmd;
+
+                    CommonTemplates.Add(item);
+                }
+            }
+            catch
+            {
+                // Ignore template source errors and keep editor responsive.
+            }
+        }
+
+        private void ApplyTemplate(CommandItem template)
+        {
+            Name = template.Name;
+            Description = template.Description;
+            SelectedType = template.Type;
+            Command = template.Command;
+            Arguments = template.Arguments;
+            WorkingDirectory = template.WorkingDirectory;
+            RunAsAdministrator = template.RunAsAdministrator;
+            OpenWindow = template.OpenWindow;
+            IconText = string.IsNullOrWhiteSpace(template.Icon) ? "Console" : template.Icon;
+
+            IconSearchText = IconText;
+            ValidationMessage = null;
+            TestStatusMessage = null;
         }
 
         private void ExecuteSave()

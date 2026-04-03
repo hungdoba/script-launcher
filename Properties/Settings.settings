@@ -3,5 +3,9 @@
   <Profiles>
     <Profile Name="(Default)" />
   </Profiles>
-  <Settings />
+  <Settings>
+    <Setting Name="CommonCommandsFile" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Data\common-commands.json</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>

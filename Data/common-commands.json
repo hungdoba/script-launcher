@@ -1,0 +1,57 @@
+[
+  {
+    "name": "Open Downloads",
+    "description": "Open Downloads folder",
+    "type": "Cmd",
+    "command": "explorer %USERPROFILE%\\Downloads",
+    "arguments": "",
+    "workingDirectory": "",
+    "runAsAdministrator": false,
+    "openWindow": false,
+    "icon": "Download"
+  },
+  {
+    "name": "Open Desktop",
+    "description": "Open Desktop folder",
+    "type": "Cmd",
+    "command": "explorer %USERPROFILE%\\Desktop",
+    "arguments": "",
+    "workingDirectory": "",
+    "runAsAdministrator": false,
+    "openWindow": false,
+    "icon": "DesktopClassic"
+  },
+  {
+    "name": "IP Config",
+    "description": "Show current network configuration",
+    "type": "Cmd",
+    "command": "ipconfig",
+    "arguments": "/all",
+    "workingDirectory": "",
+    "runAsAdministrator": false,
+    "openWindow": true,
+    "icon": "Lan"
+  },
+  {
+    "name": "Git Status",
+    "description": "Show git status in selected working directory",
+    "type": "Cmd",
+    "command": "git",
+    "arguments": "status",
+    "workingDirectory": "",
+    "runAsAdministrator": false,
+    "openWindow": true,
+    "icon": "SourceBranch"
+  },
+  {
+    "name": "Ping Google",
+    "description": "Ping DNS endpoint continuously",
+    "type": "Cmd",
+    "command": "ping",
+    "arguments": "8.8.8.8 -t",
+    "workingDirectory": "",
+    "runAsAdministrator": false,
+    "openWindow": true,
+    "icon": "Connection"
+  }
+]
